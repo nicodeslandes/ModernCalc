@@ -1,0 +1,27 @@
+﻿<Page
+    x:Class="ModernCalc.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:ModernCalc"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d" FontSize="26.667">
+
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Top" Margin="40">
+            <TextBlock Text="Formula: " VerticalAlignment="Center" Width="120"/>
+            <TextBox x:Name="formulaTextBox" Width="300" VerticalAlignment="Center" Margin="5" />
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Top" Grid.Row="1" Margin="40">
+            <TextBlock Text="Result: " VerticalAlignment="Center" Width="120"/>
+            <TextBox x:Name="resultTextBox" Width="300" VerticalAlignment="Center" Margin="5" IsReadOnly="True" />
+        </StackPanel>
+        <Button Grid.Row="2" Content="Calculate!" HorizontalAlignment="Center" Padding="25,18" FontSize="48" Click="Button_Click" />
+
+    </Grid>
+</Page>
