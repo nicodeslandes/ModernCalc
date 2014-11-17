@@ -6,8 +6,7 @@
 #include "pch.h"
 #include "MainPage.xaml.h"
 #include "Calculator.h"
-#include <string>
-#include <sstream>
+#include "ParsingException.h"
 
 using namespace ModernCalc;
 
@@ -37,9 +36,9 @@ void ModernCalc::MainPage::EvaluateFormula()
 		int res = calculate(formula);
 		resultTextBox->Text = res.ToString();
 	}
-	catch (const ParsingError& error)
+	catch (const ParsingException& ex)
 	{
-		resultTextBox->Text = ref new Platform::String(error.getMessage().c_str());
+		resultTextBox->Text = ref new Platform::String(ex.getMessage().c_str());
 	}
 }
 
