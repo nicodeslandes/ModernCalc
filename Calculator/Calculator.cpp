@@ -9,6 +9,6 @@ using namespace std;
 
 int calculate(const std::wstring& formula)
 {
-	Parser parser(formula);
-	return parser.parse_formula();
+	Parser parser;
+	return parser.parse_formula(formula);
 }
