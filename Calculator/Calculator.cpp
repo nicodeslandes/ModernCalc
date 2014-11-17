@@ -11,10 +11,12 @@ struct Token
 {
 	enum TokenType
 	{
+		END,
 		NUMBER,
 		ADD_OPERATOR,
 		MULT_OPERATOR,
-		END
+		OPEN_PARENT,
+		CLOSE_PARENT
 	};
 
 	Token(TokenType type, int start = 0, int end = 0) : type(type), start(start), end(end) {}
@@ -57,19 +59,35 @@ struct ParsingContext
 			for (position++; position < (int) str.length() && iswdigit(str[position]); position++);
 			return Token(Token::NUMBER, start, position);
 		}
-		if (c == '+' || c == '-')
+
+		auto tokenType = Token::END;
+
+		switch (c)
 		{
-			int start = position++;
-			return Token(Token::ADD_OPERATOR, start, position);
+		case '+':
+		case '-':
+			tokenType = Token::ADD_OPERATOR;
+			break;
+
+		case '*':
+		case '/':
+			tokenType = Token::MULT_OPERATOR;
+			break;
+
+		case '(':
+			tokenType = Token::OPEN_PARENT;
+			break;
+
+		case ')':
+			tokenType = Token::CLOSE_PARENT;
+			break;
+
+		default:
+			ThrowError("Unrecognized character: " << c);
 		}
 
-		if (c == '*' || c == '/')
-		{
-			int start = position++;
-			return Token(Token::MULT_OPERATOR, start, position);
-		}
-
-		ThrowError("Unrecognized character: " << c);
+		int start = position++;
+		return Token(tokenType, start, position);
 	}
 
 	Token getNextToken()
@@ -98,6 +116,8 @@ struct ParsingContext
 	}
 };
 
+int parse_expr(ParsingContext& ctx);
+
 int evaluateNumber(const ParsingContext& ctx, const Token& number)
 {
 	auto numberText = ctx.getTokenText(number);
@@ -122,16 +142,25 @@ int processOperation(int a, int b, wchar_t operation)
 // expr		: mult_expr ( ('+' | '-' ) mult_expr)*
 // mult_expr: operand ( ('*' | '/' ) operand )*
 // operand	: Number
+//			| '(' expr ')'
 
 int parse_operand(ParsingContext& ctx)
 {
-	auto operand = ctx.getNextToken();
-	if (operand.type != Token::NUMBER)
+	auto token = ctx.getNextToken();
+	if (token.type == Token::NUMBER)
+		return evaluateNumber(ctx, token);
+
+	if (token.type == Token::OPEN_PARENT)
 	{
-		ThrowError("Unexpected token at position " << operand.start << ": '" << ctx.getTokenText(operand) << "'; number expected");
+		auto value = parse_expr(ctx);
+		token = ctx.getNextToken();
+		if (token.type == Token::CLOSE_PARENT)
+			return value;
+
+		ThrowError("Missing closing parenthesis at position " << token.start);
 	}
 
-	return evaluateNumber(ctx, operand);
+	ThrowError("Unexpected token at position " << token.start << ": '" << ctx.getTokenText(token) << "'; number expected");
 }
 
 wchar_t parse_operator(ParsingContext& ctx)
@@ -190,7 +219,11 @@ int calculate(const std::wstring& formula)
 
 	try
 	{
-		return parse_expr(ctx);
+		auto result = parse_expr(ctx);
+		auto token = ctx.peekNextToken();
+		if (token.type != Token::END)
+			ThrowError("Unexpected token at position " << token.start << ": '" << ctx.getTokenText(token) << "'");
+		return result;
 	}
 	catch(const ParsingError& error)
 	{
