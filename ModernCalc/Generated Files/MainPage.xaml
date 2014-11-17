@@ -19,10 +19,11 @@
             <RowDefinition />
         </Grid.RowDefinitions>
         <TextBlock Grid.Row="1" Grid.Column="0" Text="Formula:" VerticalAlignment="Center" Margin="20" HorizontalAlignment="Right"/>
-        <TextBox Grid.Row="1" Grid.Column="1" x:Name="formulaTextBox" VerticalAlignment="Center" Margin="5" KeyDown="formulaTextBox_KeyDown" />
+        <TextBox x:ConnectionId='1' Grid.Row="1" Grid.Column="1" x:Name="formulaTextBox" VerticalAlignment="Center" Margin="5"                                  />
         <TextBlock Grid.Row="2" Grid.Column="0" Margin="20" Text="Result:" VerticalAlignment="Center" HorizontalAlignment="Right"/>
         <TextBox Grid.Row="2" Grid.Column="1" x:Name="resultTextBox" VerticalAlignment="Center" Margin="5" IsReadOnly="True" FontFamily="Global User Interface" />
-        <Button Grid.Row="3" Grid.ColumnSpan="2" Content="Calculate!" HorizontalAlignment="Center" Padding="25,18" FontSize="48" Click="Button_Click" />
+        <Button x:ConnectionId='2' Grid.Row="3" Grid.ColumnSpan="2" Content="Calculate!" HorizontalAlignment="Center" Padding="25,18" FontSize="48"                      />
 
     </Grid>
 </Page>
+

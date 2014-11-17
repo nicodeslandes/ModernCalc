@@ -29,10 +29,30 @@ MainPage::MainPage()
 	InitializeComponent();
 }
 
+void ModernCalc::MainPage::EvaluateFormula()
+{
+	std::wstring formula(formulaTextBox->Text->Data());
+	try
+	{
+		int res = calculate(formula);
+		resultTextBox->Text = res.ToString();
+	}
+	catch (const ParsingError& error)
+	{
+		resultTextBox->Text = ref new Platform::String(error.getMessage().c_str());
+	}
+}
 
 void ModernCalc::MainPage::Button_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
 {
-	std::wstring formula(formulaTextBox->Text->Data());
-	int res = calculate(formula);
-	resultTextBox->Text = res.ToString();
+	EvaluateFormula();
+}
+
+
+void ModernCalc::MainPage::formulaTextBox_KeyDown(Platform::Object^ sender, Windows::UI::Xaml::Input::KeyRoutedEventArgs^ e)
+{
+	if (e->Key == Windows::System::VirtualKey::Enter)
+	{
+		EvaluateFormula();
+	}
 }

@@ -19,20 +19,10 @@ struct Token
 		CLOSE_PARENT
 	};
 
-	Token(TokenType type, int start = 0, int end = 0) : type(type), start(start), end(end) {}
+	Token(TokenType type, int start, int end = -1) : type(type), start(start), end(end != -1 ? end : start) {}
 	TokenType type;
 	int start;
 	int end;
-};
-
-class ParsingError
-{
-public:
-	ParsingError(const wstring&& message) : _message(message) { }
-	const wstring& getMessage() const { return _message; }
-
-private:
-	wstring _message;
 };
 
 #define ThrowError(message) { \
@@ -43,15 +33,15 @@ private:
 
 struct ParsingContext
 {
-	ParsingContext(const wstring& str) : position(0), str(str)	{ }
+	ParsingContext(const wstring& str) : position{ 0 }, str{ str }, nextToken{ Token::END, 0 } { }
 	int position;
 	const wstring& str;
-	Token nextToken{ Token::END };
+	Token nextToken;
 
 	Token readNextToken()
 	{
 		while (position < (int) str.length() && iswblank(str[position])) position++;
-		if (position >= (int) str.length()) return Token(Token::END);
+		if (position >= (int) str.length()) return Token(Token::END, position);
 
 		auto c = str[position];
 		if (iswdigit(c)) {
@@ -83,7 +73,7 @@ struct ParsingContext
 			break;
 
 		default:
-			ThrowError("Unrecognized character: " << c);
+			ThrowError("Unrecognized character at position " << position << ": '" << c << "'");
 		}
 
 		int start = position++;
@@ -215,18 +205,11 @@ int parse_expr(ParsingContext& ctx)
 
 int calculate(const std::wstring& formula)
 {
-	ParsingContext ctx = {formula};
+	ParsingContext ctx(formula);
 
-	try
-	{
-		auto result = parse_expr(ctx);
-		auto token = ctx.peekNextToken();
-		if (token.type != Token::END)
-			ThrowError("Unexpected token at position " << token.start << ": '" << ctx.getTokenText(token) << "'");
-		return result;
-	}
-	catch(const ParsingError& error)
-	{
-		return 0;
-	}
+	auto result = parse_expr(ctx);
+	auto token = ctx.peekNextToken();
+	if (token.type != Token::END)
+		ThrowError("Unexpected token at position " << token.start << ": '" << ctx.getTokenText(token) << "'");
+	return result;
 }
