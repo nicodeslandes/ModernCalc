@@ -15,6 +15,26 @@ namespace Parsing
 	public:
 		CALCULATOR_API int parse_formula(const std::wstring& str);
 
+		class ExprContext;
+		class OperandContext
+		{
+		public:
+			std::optional<Token> NegateToken;
+
+			enum class OperandType
+			{
+				Number,
+				Expression
+			};
+
+			std::optional<Token> Number;
+			std::shared_ptr<ExprContext> Expression;
+
+			//Token Indentifier;
+
+		};
+	protected:
+		virtual int processOperand(const OperandContext& context) { return 0; }
 	private:
 		int parse_expr(ParsingContext& ctx);
 		int evaluateNumber(const Token& number) const;
