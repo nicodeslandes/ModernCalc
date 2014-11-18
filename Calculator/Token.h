@@ -1,11 +1,12 @@
 #pragma once
 
-class ParsingContext;
-
-struct Token
+namespace Parsing
 {
-	enum TokenType
+	class ParsingContext;
+
+	enum class TokenType
 	{
+		NONE,
 		END,
 		NUMBER,
 		ADD_OPERATOR,
@@ -14,21 +15,24 @@ struct Token
 		CLOSE_PARENT
 	};
 
-	Token(const ParsingContext* ctx,
-		TokenType type,
-		int start,
-		int end = -1) :
-		_ctx(ctx), type(type), start(start), end(end != -1 ? end : start) {}
+	struct Token
+	{
+		Token(const ParsingContext* ctx,
+			TokenType type,
+			int start,
+			int end = -1) :
+			_ctx(ctx), type(type), start(start), end(end != -1 ? end : start) {}
 
-	//Token(const Token&) = default;
-	//Token& operator=(const Token&) = default;
+		//Token(const Token&) = default;
+		//Token& operator=(const Token&) = default;
 
-	std::wstring getText() const;
-	wchar_t getFirstChar() const;
+		std::wstring getText() const;
+		wchar_t getFirstChar() const;
 
-	TokenType type;
-	int start;
-	int end;
+		TokenType type;
+		int start;
+		int end;
 
-	const ParsingContext* _ctx;
-};
+		const ParsingContext* _ctx;
+	};
+}

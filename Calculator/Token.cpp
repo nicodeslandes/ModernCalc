@@ -3,6 +3,7 @@
 #include "ParsingContext.h"
 
 using namespace std;
+using namespace Parsing;
 
 wstring Token::getText() const
 {

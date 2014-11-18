@@ -4,17 +4,18 @@
 #include "ParsingContext.h"
 
 using namespace std;
+using namespace Parsing;
 
 Token Tokenizer::getNextToken(ParsingContext& ctx) const
 {
 	// If a token has been saved (by a previous call to peekNextToken),
 	// return it now without moving forward
-	if (ctx._savedToken.type != Token::END)
+	if (ctx._savedToken.type != TokenType::END)
 	{
 		Token token = ctx._savedToken;
 
 		// Reset the saved token
-		ctx._savedToken.type = Token::END;
+		ctx._savedToken.type = TokenType::END;
 		return token;
 	}
 
@@ -42,7 +43,7 @@ Token Tokenizer::readNextToken(ParsingContext& ctx) const
 
 	// Check for the end of the stream
 	if (position >= (int) str.length())
-		return Token(&ctx, Token::END, position);
+		return Token(&ctx, TokenType::END, position);
 
 	// Read next character
 	auto start = position;
@@ -51,29 +52,29 @@ Token Tokenizer::readNextToken(ParsingContext& ctx) const
 	// Check for Number
 	if (iswdigit(c)) {
 		for (; position < (int) str.length() && iswdigit(str[position]); position++);
-		return Token(&ctx, Token::NUMBER, start, position);
+		return Token(&ctx, TokenType::NUMBER, start, position);
 	}
 
 	// Check for other, 1-character tokens
-	auto tokenType = Token::END;
+	auto tokenType = TokenType::END;
 	switch (c)
 	{
 	case '+':
 	case '-':
-		tokenType = Token::ADD_OPERATOR;
+		tokenType = TokenType::ADD_OPERATOR;
 		break;
 
 	case '*':
 	case '/':
-		tokenType = Token::MULT_OPERATOR;
+		tokenType = TokenType::MULT_OPERATOR;
 		break;
 
 	case '(':
-		tokenType = Token::OPEN_PARENT;
+		tokenType = TokenType::OPEN_PARENT;
 		break;
 
 	case ')':
-		tokenType = Token::CLOSE_PARENT;
+		tokenType = TokenType::CLOSE_PARENT;
 		break;
 
 	default:

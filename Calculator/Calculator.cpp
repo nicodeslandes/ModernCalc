@@ -6,6 +6,7 @@
 #include "Parser.h"
 
 using namespace std;
+using namespace Parsing;
 
 int calculate(const std::wstring& formula)
 {

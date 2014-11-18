@@ -2,14 +2,17 @@
 #include <string>
 #include "Token.h"
 
-class ParsingContext;
-
-class Tokenizer
+namespace Parsing
 {
-public:
-	Token getNextToken(ParsingContext& ctx) const;
-	Token peekNextToken(ParsingContext& ctx) const;
+	class ParsingContext;
 
-private:
-	Token readNextToken(ParsingContext& ctx) const;
-};
+	class Tokenizer
+	{
+	public:
+		Token getNextToken(ParsingContext& ctx) const;
+		Token peekNextToken(ParsingContext& ctx) const;
+
+	private:
+		Token readNextToken(ParsingContext& ctx) const;
+	};
+}

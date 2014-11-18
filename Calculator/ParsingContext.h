@@ -2,15 +2,18 @@
 #include <string>
 #include "Token.h"
 
-class ParsingContext
+namespace Parsing
 {
-public:
-	ParsingContext(const std::wstring& str);
-	const std::wstring& getString() const { return _str; }
-private:
-	int _position;
-	const std::wstring& _str;
-	Token _savedToken;
+	class ParsingContext
+	{
+	public:
+		ParsingContext(const std::wstring& str);
+		const std::wstring& getString() const { return _str; }
+	private:
+		int _position;
+		const std::wstring& _str;
+		Token _savedToken;
 
-	friend class Tokenizer;
-};
+		friend class Tokenizer;
+	};
+}
