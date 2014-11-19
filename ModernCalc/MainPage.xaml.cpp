@@ -7,6 +7,8 @@
 #include "MainPage.xaml.h"
 #include "Calculator.h"
 #include "ParsingException.h"
+#include "ExpressionEvaluator.h"
+#include "ExpressionWriter.h"
 
 using namespace ModernCalc;
 
@@ -33,7 +35,13 @@ void ModernCalc::MainPage::EvaluateFormula()
 	std::wstring formula(formulaTextBox->Text->Data());
 	try
 	{
-		int res = calculate(formula);
+		Parsing::Parser parser;
+		ExpressionEvaluator evaluator;
+		ExpressionWriter writer;
+
+		auto expression = parser.parse_formula(formula);
+		formulaTextBox->Text = ref new String(writer.Write(expression).c_str());
+		int res = evaluator.Evaluate(expression);
 		resultTextBox->Text = res.ToString();
 	}
 	catch (const ParsingException& ex)

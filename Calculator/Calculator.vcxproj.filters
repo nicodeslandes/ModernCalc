@@ -15,6 +15,7 @@
     <ClCompile Include="ParsingContext.cpp" />
     <ClCompile Include="Token.cpp" />
     <ClCompile Include="ExpressionEvaluator.cpp" />
+    <ClCompile Include="ExpressionWriter.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Calculator.h" />
@@ -27,5 +28,6 @@
     <ClInclude Include="ParsingException.h" />
     <ClInclude Include="ParsingContext.h" />
     <ClInclude Include="ExpressionEvaluator.h" />
+    <ClInclude Include="ExpressionWriter.h" />
   </ItemGroup>
 </Project>
