@@ -121,6 +121,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <CompileAsWinRT>false</CompileAsWinRT>
       <PreprocessorDefinitions>_WINDLL;CALCULATOR_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <WarningLevel>Level4</WarningLevel>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -133,6 +134,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <CompileAsWinRT>false</CompileAsWinRT>
       <PreprocessorDefinitions>_WINDLL;CALCULATOR_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <WarningLevel>Level4</WarningLevel>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -187,6 +189,7 @@
   <ItemGroup>
     <ClInclude Include="Calculator.h" />
     <ClInclude Include="Error.h" />
+    <ClInclude Include="ExpressionEvaluator.h" />
     <ClInclude Include="Parser.h" />
     <ClInclude Include="ParsingContext.h" />
     <ClInclude Include="ParsingException.h" />
@@ -198,6 +201,7 @@
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="Calculator.cpp" />
+    <ClCompile Include="ExpressionEvaluator.cpp" />
     <ClCompile Include="Parser.cpp" />
     <ClCompile Include="ParsingContext.cpp" />
     <ClCompile Include="pch.cpp">

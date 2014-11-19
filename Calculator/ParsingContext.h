@@ -9,6 +9,7 @@ namespace Parsing
 	public:
 		ParsingContext(const std::wstring& str);
 		const std::wstring& getString() const { return _str; }
+		ParsingContext& operator=(const ParsingContext&) = delete;
 	private:
 		int _position;
 		const std::wstring& _str;

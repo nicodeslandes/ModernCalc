@@ -10,12 +10,12 @@ Token Tokenizer::getNextToken(ParsingContext& ctx) const
 {
 	// If a token has been saved (by a previous call to peekNextToken),
 	// return it now without moving forward
-	if (ctx._savedToken.type != TokenType::END)
+	if (ctx._savedToken.getType() != TokenType::END)
 	{
 		Token token = ctx._savedToken;
 
 		// Reset the saved token
-		ctx._savedToken.type = TokenType::END;
+		ctx._savedToken = Token::None;
 		return token;
 	}
 

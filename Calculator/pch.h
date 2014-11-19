@@ -8,3 +8,6 @@
 
 #include <windows.h>
 #include <string>
+#include <sstream>
+#include "optional.hpp"
+#include <list>

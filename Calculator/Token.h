@@ -15,24 +15,32 @@ namespace Parsing
 		CLOSE_PARENT
 	};
 
-	struct Token
+	class Token
 	{
+	public:
 		Token(const ParsingContext* ctx,
 			TokenType type,
 			int start,
-			int end = -1) :
-			_ctx(ctx), type(type), start(start), end(end != -1 ? end : start) {}
+			int end = -1);
 
-		//Token(const Token&) = default;
-		//Token& operator=(const Token&) = default;
-
-		std::wstring getText() const;
+		TokenType getType() const { return _type; }
+		int getPosition() const { return _start; }
+		const std::wstring& getText() const { return _text; }
 		wchar_t getFirstChar() const;
 
-		TokenType type;
-		int start;
-		int end;
+		static const Token None;
+	private:
+		Token();
+		TokenType _type;
+		int _start;
+		int _end;
 
-		const ParsingContext* _ctx;
+		std::wstring _text;
 	};
+
+	template<class T, class U>
+	std::basic_ostream<T,U>& operator<<(std::basic_ostream<T, U>& ostream, Token token)
+	{
+		return ostream << L"'" << token.getText() << L"' (position: " << token.getPosition() << L")";
+	}
 }
