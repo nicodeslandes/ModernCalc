@@ -8,14 +8,73 @@
 using namespace std;
 using namespace Parsing;
 
-
 // Grammar:
-// formula:	: expr<EOF>
+// formula:	: expr<END>
 // expr		: mult_expr ( ('+' | '-' ) mult_expr)*
 // mult_expr: operand ( ('*' | '/' ) operand )*
 // operand	: ('-' | '+')? ( Number | '(' expr ')' | Identifier )
 // Number : [0-9]+
 // Identifier: [a-zA-Z]+
+
+CALCULATOR_API Parser::ExprContextPtr Parser::parse_formula(const wstring& str)
+{
+	ParsingContext ctx(str);
+	auto result = parse_expr(ctx);
+	auto token = _tokenizer.peekNextToken(ctx);
+	if (token.getType() != TokenType::END)
+		ThrowError(L"Unexpected token: " << token);
+
+	return result;
+}
+
+Parser::ExprContextPtr Parser::parse_expr(ParsingContext& ctx)
+{
+	auto expression = make_shared<ExprContext>();
+
+	// Initialize the operation token to a dummy token
+	Token operationToken = Token::None;
+
+	do
+	{
+		if (operationToken.getType() != TokenType::END)
+		{
+			// If we've just peeked a new operator, consume it now
+			_tokenizer.getNextToken(ctx);
+		}
+
+		auto operand = parse_multexpr(ctx);
+		expression->addOperand(operationToken, operand);
+
+		operationToken = _tokenizer.peekNextToken(ctx);
+
+	} while (operationToken.getType() == TokenType::ADD_OPERATOR);
+
+	return expression;
+}
+
+Parser::MultExprContextPtr Parser::parse_multexpr(ParsingContext& ctx)
+{
+	auto multExpression = make_shared<MultExprContext>();
+
+	// Initialize the operation token to a dummy token
+	Token operationToken = Token::None;
+
+	do
+	{
+		if (operationToken.getType() != TokenType::END)
+		{
+			// If we've just peeked a new operator, consume it now
+			_tokenizer.getNextToken(ctx);
+		}
+
+		auto operand = parse_operand(ctx);
+		multExpression->addOperand(operationToken, operand);
+
+		operationToken = _tokenizer.peekNextToken(ctx);
+	} while (operationToken.getType() == TokenType::MULT_OPERATOR);
+
+	return multExpression;
+}
 
 Parser::OperandContextPtr Parser::parse_operand(ParsingContext& ctx)
 {
@@ -65,66 +124,6 @@ wchar_t Parser::parse_operator(ParsingContext& ctx)
 	}
 
 	return operatorToken.getFirstChar();
-}
-
-Parser::MultExprContextPtr Parser::parse_multexpr(ParsingContext& ctx)
-{
-	auto multExpression = make_shared<MultExprContext>();
-
-	// Initialize the operation token to a dummy token
-	Token operationToken = Token::None;
-
-	do
-	{
-		if (operationToken.getType() != TokenType::END)
-		{
-			// If we've just peeked a new operator, consume it now
-			_tokenizer.getNextToken(ctx);
-		}
-
-		auto operand = parse_operand(ctx);
-		multExpression->addOperand(operationToken, operand);
-
-		operationToken = _tokenizer.peekNextToken(ctx);
-	} while (operationToken.getType() == TokenType::MULT_OPERATOR);
-
-	return multExpression;
-}
-
-Parser::ExprContextPtr Parser::parse_expr(ParsingContext& ctx)
-{
-	auto expression = make_shared<ExprContext>();
-
-	// Initialize the operation token to a dummy token
-	Token operationToken = Token::None;
-
-	do
-	{
-		if (operationToken.getType() != TokenType::END)
-		{
-			// If we've just peeked a new operator, consume it now
-			_tokenizer.getNextToken(ctx);
-		}
-
-		auto operand = parse_multexpr(ctx);
-		expression->addOperand(operationToken, operand);
-
-		operationToken = _tokenizer.peekNextToken(ctx);
-
-	} while (operationToken.getType() == TokenType::ADD_OPERATOR);
-
-	return expression;
-}
-
-CALCULATOR_API Parser::ExprContextPtr Parser::parse_formula(const wstring& str)
-{
-	ParsingContext ctx(str);
-	auto result = parse_expr(ctx);
-	auto token = _tokenizer.peekNextToken(ctx);
-	if (token.getType() != TokenType::END)
-		ThrowError(L"Unexpected token: " << token);
-
-	return result;
 }
 
 void Parsing::Parser::MultExprContext::addOperand(Token operationToken, OperandContextPtr operand)
