@@ -55,6 +55,12 @@ Token Tokenizer::readNextToken(ParsingContext& ctx) const
 		return Token(&ctx, TokenType::NUMBER, start, position);
 	}
 
+	// Check for Identifier
+	if (iswalpha(c)) {
+		for (; position < (int) str.length() && iswalpha(str[position]); position++);
+		return Token(&ctx, TokenType::IDENTIFIER, start, position);
+	}
+
 	// Check for other, 1-character tokens
 	auto tokenType = TokenType::END;
 	switch (c)

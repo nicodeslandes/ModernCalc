@@ -9,6 +9,7 @@ namespace Parsing
 		NONE,
 		END,
 		NUMBER,
+		IDENTIFIER,
 		ADD_OPERATOR,
 		MULT_OPERATOR,
 		OPEN_PARENT,

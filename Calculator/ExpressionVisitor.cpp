@@ -45,6 +45,13 @@ ExpressionVisitorBase::VisitorContextPtr ExpressionVisitorBase::VisitOperand(Vis
 		OnVisitNumberOperand(operandCtx, negateToken, numberCtx);
 		break;
 	}
+	case Parser::OperandContext::OperandType::Identifier:
+	{
+		OnBeginVisitIdentifierOperand(operandCtx, negateToken);
+		auto numberCtx = VisitIdentifier(operandCtx, operand->getIdentifier());
+		OnVisitNumberOperand(operandCtx, negateToken, numberCtx);
+		break;
+	}
 	case Parser::OperandContext::OperandType::Expression:
 	{
 		OnBeginVisitExpressionOperand(operandCtx, negateToken, operand->getExpression());
@@ -59,9 +66,16 @@ ExpressionVisitorBase::VisitorContextPtr ExpressionVisitorBase::VisitOperand(Vis
 	return operandCtx;
 }
 
-ExpressionVisitorBase::VisitorContextPtr ExpressionVisitorBase::VisitNumber(VisitorContextPtr ctx, Parsing::Token numberToken)
+ExpressionVisitorBase::VisitorContextPtr ExpressionVisitorBase::VisitNumber(VisitorContextPtr ctx, const wstring& number)
 {
 	auto numberCtx = CreateContext(ctx);
-	OnVisitNumber(numberCtx, numberToken);
+	OnVisitNumber(numberCtx, number);
+	return numberCtx;
+}
+
+ExpressionVisitorBase::VisitorContextPtr ExpressionVisitorBase::VisitIdentifier(VisitorContextPtr ctx, const wstring& identifier)
+{
+	auto numberCtx = CreateContext(ctx);
+	OnVisitIdentifier(numberCtx, identifier);
 	return numberCtx;
 }

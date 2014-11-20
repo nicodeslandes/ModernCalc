@@ -45,7 +45,7 @@ Parser::ExprContextPtr Parser::parse_expr(ParsingContext& ctx)
 		auto operandExpression = parse_multexpr(ctx);
 		auto operand = make_shared<OperandContext>();
 		operand->_type = OperandContext::OperandType::Expression;
-		operand->Expression = operandExpression;
+		operand->_expression = operandExpression;
 		expression->addOperand(operationToken, operand);
 
 		operationToken = _tokenizer.peekNextToken(ctx);
@@ -93,7 +93,17 @@ Parser::OperandContextPtr Parser::parse_operand(ParsingContext& ctx)
 	if (token.getType() == TokenType::NUMBER)
 	{
 		operandContext->_type = OperandContext::OperandType::Number;
-		operandContext->Number = token;
+		operandContext->_number = token.getText();
+		return operandContext;
+	}
+
+	if (token.getType() == TokenType::IDENTIFIER)
+	{
+		operandContext->_type = OperandContext::OperandType::Identifier;
+		auto& tokenText = token.getText();
+		wstring identifier;
+		std::transform(begin(tokenText), end(tokenText), std::back_inserter(identifier), towupper);
+		operandContext->_identifier = identifier;
 		return operandContext;
 	}
 
@@ -104,7 +114,7 @@ Parser::OperandContextPtr Parser::parse_operand(ParsingContext& ctx)
 		if (token.getType() == TokenType::CLOSE_PARENT)
 		{
 			operandContext->_type = OperandContext::OperandType::Expression;
-			operandContext->Expression = expression;
+			operandContext->_expression = expression;
 			return operandContext;
 		}
 

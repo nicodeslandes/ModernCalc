@@ -20,7 +20,8 @@ protected:
 
 	VisitorContextPtr VisitExpression(VisitorContextPtr ctx, Parsing::Parser::ExprContextPtr expression);
 	VisitorContextPtr VisitOperand(VisitorContextPtr ctx, Parsing::Parser::OperandContextPtr operand);
-	VisitorContextPtr VisitNumber(VisitorContextPtr ctx, Parsing::Token numberToken);
+	VisitorContextPtr VisitNumber(VisitorContextPtr ctx, const std::wstring& number);
+	VisitorContextPtr VisitIdentifier(VisitorContextPtr ctx, const std::wstring& identifier);
 
 #pragma warning (push)
 #pragma warning (disable: 4100)
@@ -31,9 +32,12 @@ protected:
 	virtual void OnBeginVisitExpressionOperand(VisitorContextPtr operandCtx, std::optional<Parsing::Token> negateToken, Parsing::Parser::ExprContextPtr expression) {}
 	virtual void OnVisitExpressionOperand(VisitorContextPtr operandCtx, std::optional<Parsing::Token> negateToken, VisitorContextPtr expressionCtx, Parsing::Parser::ExprContextPtr expression) {}
 	virtual void OnBeginVisitNumberOperand(VisitorContextPtr operandCtx, std::optional<Parsing::Token> negateToken) {}
+	virtual void OnBeginVisitIdentifierOperand(VisitorContextPtr operandCtx, std::optional<Parsing::Token> negateToken) {}
 	virtual void OnVisitNumberOperand(VisitorContextPtr operandCtx, std::optional<Parsing::Token> negateToken, VisitorContextPtr number) {}
+	virtual void OnVisitIdentifierOperand(VisitorContextPtr operandCtx, std::optional<Parsing::Token> negateToken, VisitorContextPtr identifier) {}
 
-	virtual void OnVisitNumber(VisitorContextPtr numberCtx, Parsing::Token numberToken) {}
+	virtual void OnVisitNumber(VisitorContextPtr numberCtx, const std::wstring& number) {}
+	virtual void OnVisitIdentifier(VisitorContextPtr numberCtx, const std::wstring& identifier) {}
 #pragma warning (pop)
 };
 

@@ -61,18 +61,21 @@ namespace Parsing
 		enum class OperandType
 		{
 			Number,
+			Identifier,
 			Expression
 		};
 
 		OperandType getType() const { return _type; }
-		Token getNumber() const { return Number.get(); }
-		std::shared_ptr<ExprContext> getExpression() const { return Expression; }
+		const std::wstring& getNumber() const { return _number.get(); }
+		const std::wstring& getIdentifier() const { return _identifier.get(); }
+		std::shared_ptr<ExprContext> getExpression() const { return _expression; }
 
 	private:
 		friend class Parser;
 		OperandType _type;
 		std::optional<Token> _negateToken;
-		std::optional<Token> Number;
-		std::shared_ptr<ExprContext> Expression;
+		std::optional<std::wstring> _number;
+		std::optional<std::wstring> _identifier;
+		std::shared_ptr<ExprContext> _expression;
 	};
 }

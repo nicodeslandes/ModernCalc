@@ -55,6 +55,14 @@ namespace Calculator_Tests
 			// Check we can call Evaluate another time
 			Assert::AreEqual(wstring(L"(1 + 2) * 3"), writer.Write(expression));
 		}
+		TEST_METHOD(TestIdentifier)
+		{
+			TestFormula(L"1 *2  *3 -2/A + (3*C+ A)*D", L"1 * 2 * 3 - 2 / A + (3 * C + A) * D");
+		}
+		TEST_METHOD(TestIdentifierCase)
+		{
+			TestFormula(L"a + 2*B", L"A + 2 * B");
+		}
 	private:
 		void TestFormula(const wchar_t* formula, const wchar_t* formattedFormula)
 		{
