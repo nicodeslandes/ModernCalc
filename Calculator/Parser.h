@@ -4,7 +4,7 @@
 #include <string>
 #include <memory>
 #include "optional.hpp"
-#include <list>
+#include <vector>
 
 namespace Parsing
 {
@@ -26,10 +26,7 @@ namespace Parsing
 	private:
 		ExprContextPtr parse_expr(ParsingContext& ctx);
 		OperandContextPtr parse_operand(ParsingContext & ctx);
-		MultExprContextPtr parse_multexpr(ParsingContext& ctx);
-
-		int evaluateNumber(const Token& number) const;
-		int processOperation(int a, int b, wchar_t operation) const;
+		ExprContextPtr parse_multexpr(ParsingContext& ctx);
 		wchar_t parse_operator(ParsingContext& ctx);
 
 		Tokenizer _tokenizer;
@@ -46,25 +43,12 @@ namespace Parsing
 	class Parser::ExprContext
 	{
 	public:
-		const std::list<std::tuple<Operation, MultExprContextPtr>>& getOperands() const { return _operands; }
-
-	private:
-		void addOperand(Token operationToken, MultExprContextPtr operand);
-		Operation getOperation(Token operationToken);
-		std::list<std::tuple<Operation, MultExprContextPtr>> _operands;
-
-		friend class Parser;
-	};
-
-	class Parser::MultExprContext
-	{
-	public:
-		const std::list<std::tuple<Operation, OperandContextPtr>>& getOperands() const { return _operands; }
+		const std::vector<std::tuple<Operation, OperandContextPtr>>& getOperands() const { return _operands; }
 
 	private:
 		void addOperand(Token operationToken, OperandContextPtr operand);
 		Operation getOperation(Token operationToken);
-		std::list<std::tuple<Operation, OperandContextPtr>> _operands;
+		std::vector<std::tuple<Operation, OperandContextPtr>> _operands;
 
 		friend class Parser;
 	};

@@ -1,16 +1,17 @@
 #pragma once
+
+#include "Calculator.h"
 #include "Parser.h"
+#include "ExpressionVisitor.h"
 
 class ExpressionWriter
 {
 public:
-	CALCULATOR_API std::wstring Write(Parsing::Parser::ExprContextPtr expression) const;
+	CALCULATOR_API ExpressionWriter();
+	CALCULATOR_API ~ExpressionWriter();
+	CALCULATOR_API std::wstring Write(Parsing::Parser::ExprContextPtr expression);
 private:
-	class WritingContext;
-	void WriteExpr(WritingContext& ctx, Parsing::Parser::ExprContextPtr expression) const;
-	void WriteMultExpr(WritingContext& ctx, Parsing::Parser::MultExprContextPtr expression) const;
-	void WriteOperand(WritingContext& ctx, Parsing::Parser::OperandContextPtr operand) const;
-	void WriteNumber(WritingContext& ctx, Parsing::Token numberToken) const;
-	void WriteOperation(WritingContext & ctx, Parsing::Operation operation) const;
+	class ExpressionWriterVisitor;
+	std::unique_ptr<ExpressionWriterVisitor> _visitor;
 };
 

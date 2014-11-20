@@ -42,7 +42,10 @@ Parser::ExprContextPtr Parser::parse_expr(ParsingContext& ctx)
 			_tokenizer.getNextToken(ctx);
 		}
 
-		auto operand = parse_multexpr(ctx);
+		auto operandExpression = parse_multexpr(ctx);
+		auto operand = make_shared<OperandContext>();
+		operand->_type = OperandContext::OperandType::Expression;
+		operand->Expression = operandExpression;
 		expression->addOperand(operationToken, operand);
 
 		operationToken = _tokenizer.peekNextToken(ctx);
@@ -52,9 +55,9 @@ Parser::ExprContextPtr Parser::parse_expr(ParsingContext& ctx)
 	return expression;
 }
 
-Parser::MultExprContextPtr Parser::parse_multexpr(ParsingContext& ctx)
+Parser::ExprContextPtr Parser::parse_multexpr(ParsingContext& ctx)
 {
-	auto multExpression = make_shared<MultExprContext>();
+	auto multExpression = make_shared<ExprContext>();
 
 	// Initialize the operation token to a dummy token
 	Token operationToken = Token::None;
@@ -126,41 +129,23 @@ wchar_t Parser::parse_operator(ParsingContext& ctx)
 	return operatorToken.getFirstChar();
 }
 
-void Parsing::Parser::MultExprContext::addOperand(Token operationToken, OperandContextPtr operand)
-{
-	auto operation = getOperation(operationToken);
-	_operands.push_back(make_tuple(operation, operand));
-}
-
-Operation Parser::MultExprContext::getOperation(Token operationToken)
-{
-	if (operationToken.getType() == TokenType::END)
-		return Operation::Multiply;
-
-	assert(operationToken.getType() == TokenType::MULT_OPERATOR);
-	switch (operationToken.getFirstChar())
-	{
-	case '*': return Operation::Multiply;
-	case '/': return Operation::Divide;
-	default: ThrowError("Unexpected multiplication operator: " << operationToken);
-	}
-}
 
 Operation Parser::ExprContext::getOperation(Token operationToken)
 {
 	if (operationToken.getType() == TokenType::END)
 		return Operation::Add;
 
-	assert(operationToken.getType() == TokenType::ADD_OPERATOR);
 	switch (operationToken.getFirstChar())
 	{
 	case '+': return Operation::Add;
 	case '-': return Operation::Substract;
+	case '*': return Operation::Multiply;
+	case '/': return Operation::Divide;
 	default: ThrowError("Unexpected addition operator: " << operationToken);
 	}
 }
 
-void Parsing::Parser::ExprContext::addOperand(Token operationToken, MultExprContextPtr operand)
+void Parsing::Parser::ExprContext::addOperand(Token operationToken, OperandContextPtr operand)
 {
 	auto operation = getOperation(operationToken);
 	_operands.push_back(make_tuple(operation, operand));

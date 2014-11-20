@@ -5,70 +5,89 @@
 using namespace std;
 using namespace Parsing;
 
-CALCULATOR_API int ExpressionEvaluator::Evaluate(Parser::ExprContextPtr expression) const
+class ExpressionEvaluator::ExpressionEvaluatorVisitor : public ExpressionVisitor<int>
 {
-	return evaluateExpr(expression);
-}
+public:
+	virtual VisitorContextPtr CreateContext(VisitorContextPtr parent = nullptr);
+	virtual int OnSuccessfulVisit(VisitorContextPtr ctx);
 
-int ExpressionEvaluator::evaluateExpr(Parser::ExprContextPtr expression) const
-{
-	int result = 0;
-	bool first = true;
+	virtual void OnVisitExpressionFirstOperand(VisitorContextPtr expressionCtx, VisitorContextPtr operandCtx);
+	virtual void OnVisitExpressionSubsequentOperand(VisitorContextPtr expressionCtx, Parsing::Operation operation, VisitorContextPtr operandCtx);
+	virtual void OnVisitExpressionOperand(VisitorContextPtr operandCtx, std::optional<Parsing::Token> negateToken, VisitorContextPtr expressionCtx, Parsing::Parser::ExprContextPtr expression);
+	virtual void OnVisitNumberOperand(VisitorContextPtr operandCtx, std::optional<Parsing::Token> negateToken, VisitorContextPtr number);
 
-	for (auto& operand: expression->getOperands())
+	virtual void OnVisitNumber(VisitorContextPtr numberCtx, Parsing::Token numberToken);
+
+private:
+	class EvaluationContext : public ExpressionVisitorBase::VisitorContext
 	{
-		auto operandValue = evaluateMultExpr(get<1>(operand));
+	public:
+		int value;
+	};
 
-		if (first)
-		{
-			result = operandValue;
-			first = false;
-			continue;
-		}
+	int ProcessOperation(int a, int b, Operation operation) const;
+};
 
-		auto operation = get<0>(operand);
-		result = processOperation(result, operandValue, operation);
-	}
 
-	return result;
+CALCULATOR_API ExpressionEvaluator::ExpressionEvaluator() : _visitor(new ExpressionEvaluatorVisitor)
+{
 }
 
-int ExpressionEvaluator::evaluateMultExpr(Parser::MultExprContextPtr expression) const
+CALCULATOR_API ExpressionEvaluator::~ExpressionEvaluator()
 {
-	int result = 0;
-	bool first = true;
-
-	for (auto& operand : expression->getOperands())
-	{
-		auto operandValue = evaluateOperand(get<1>(operand));
-
-		if (first)
-		{
-			result = operandValue;
-			first = false;
-			continue;
-		}
-
-		auto operation = get<0>(operand);
-		result = processOperation(result, operandValue, operation);
-	}
-
-	return result;
 }
 
-int ExpressionEvaluator::evaluateOperand(Parser::OperandContextPtr operand) const
+CALCULATOR_API int ExpressionEvaluator::Evaluate(Parser::ExprContextPtr expression)
 {
-	auto& negateToken = operand->getNegateToken();
-	int negateFactor = (negateToken && negateToken->getFirstChar() == '-') ? -1 : 1;
-
-	if (operand->getType() == Parser::OperandContext::OperandType::Number)
-		return negateFactor * evaluateNumber(operand->getNumber());
-
-	return negateFactor * evaluateExpr(operand->getExpression());
+	return _visitor->Visit(expression);
 }
 
-int ExpressionEvaluator::evaluateNumber(Token numberToken) const
+
+ExpressionVisitorBase::VisitorContextPtr ExpressionEvaluator::ExpressionEvaluatorVisitor::CreateContext(VisitorContextPtr parent)
 {
+	return make_shared<EvaluationContext>();
+}
+
+int ExpressionEvaluator::ExpressionEvaluatorVisitor::OnSuccessfulVisit(VisitorContextPtr expressionCtx)
+{
+	EvaluationContext& ctx = dynamic_cast<EvaluationContext&>(*expressionCtx);
+	return ctx.value;
+}
+
+void ExpressionEvaluator::ExpressionEvaluatorVisitor::OnVisitExpressionFirstOperand(VisitorContextPtr expressionCtx, VisitorContextPtr operandCtx)
+{
+	auto& expressionEvalCtx = dynamic_cast<EvaluationContext&>(*expressionCtx);
+	auto& operandEvalCtx = dynamic_cast<EvaluationContext&>(*operandCtx);
+	expressionEvalCtx.value = operandEvalCtx.value;
+}
+
+void ExpressionEvaluator::ExpressionEvaluatorVisitor::OnVisitExpressionSubsequentOperand(VisitorContextPtr expressionCtx, Parsing::Operation operation, VisitorContextPtr operandCtx)
+{
+	auto& expressionEvalCtx = dynamic_cast<EvaluationContext&>(*expressionCtx);
+	auto& operandEvalCtx = dynamic_cast<EvaluationContext&>(*operandCtx);
+	expressionEvalCtx.value = ProcessOperation(expressionEvalCtx.value, operandEvalCtx.value, operation);
+}
+
+void ExpressionEvaluator::ExpressionEvaluatorVisitor::OnVisitExpressionOperand(VisitorContextPtr operandCtx, std::optional<Parsing::Token> negateToken, VisitorContextPtr expressionCtx, Parsing::Parser::ExprContextPtr expression)
+{
+	auto& operandEvalCtx = dynamic_cast<EvaluationContext&>(*operandCtx);
+	auto& expressionEvalCtx = dynamic_cast<EvaluationContext&>(*expressionCtx);
+	auto negateFactor = (negateToken && negateToken->getFirstChar() == L'-') ? -1 : 1;
+	operandEvalCtx.value = negateFactor * expressionEvalCtx.value;
+}
+
+void ExpressionEvaluator::ExpressionEvaluatorVisitor::OnVisitNumberOperand(VisitorContextPtr operandCtx, std::optional<Parsing::Token> negateToken, VisitorContextPtr number)
+{
+	auto& operandEvalCtx = dynamic_cast<EvaluationContext&>(*operandCtx);
+	auto& numberEvalCtx = dynamic_cast<EvaluationContext&>(*number);
+	auto negateFactor = (negateToken && negateToken->getFirstChar() == L'-') ? -1 : 1;
+	operandEvalCtx.value = negateFactor * numberEvalCtx.value;
+}
+
+void ExpressionEvaluator::ExpressionEvaluatorVisitor::OnVisitNumber(VisitorContextPtr numberCtx, Parsing::Token numberToken)
+{
+	auto& numberEvalCtx = dynamic_cast<EvaluationContext&>(*numberCtx);
+
 	auto numberText = numberToken.getText();
 	wistringstream stream(numberText);
 	int parsed;
@@ -78,10 +97,10 @@ int ExpressionEvaluator::evaluateNumber(Token numberToken) const
 		ThrowError(L"Wrong number: " << numberToken);
 	}
 
-	return parsed;
+	numberEvalCtx.value = parsed;
 }
 
-int ExpressionEvaluator::processOperation(int a, int b, Operation operation) const
+int ExpressionEvaluator::ExpressionEvaluatorVisitor::ProcessOperation(int a, int b, Operation operation) const
 {
 	switch (operation)
 	{
@@ -90,6 +109,6 @@ int ExpressionEvaluator::processOperation(int a, int b, Operation operation) con
 	case Operation::Multiply: return a * b;
 	case Operation::Divide: return a / b;
 	default:
-		ThrowError(L"Unhandled operator: " << (int)operation);
+		ThrowError(L"Unhandled operator: " << (int) operation);
 	}
 }

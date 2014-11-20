@@ -5,62 +5,93 @@
 using namespace std;
 using namespace Parsing;
 
-class ExpressionWriter::WritingContext
+class ExpressionWriter::ExpressionWriterVisitor : public ExpressionVisitor<std::wstring>
 {
 public:
-	wostringstream Stream;
+	virtual VisitorContextPtr CreateContext(VisitorContextPtr parent = nullptr);
+	virtual std::wstring OnSuccessfulVisit(VisitorContextPtr ctx);
+	virtual void OnBeginVisitExpressionSubsequentOperand(VisitorContextPtr expressionCtx, Parsing::Operation operation);
+
+	virtual void OnBeginVisitExpressionOperand(VisitorContextPtr operandCtx, std::optional<Parsing::Token> negateToken, Parsing::Parser::ExprContextPtr expression);
+	virtual void OnVisitExpressionOperand(VisitorContextPtr operandCtx, std::optional<Parsing::Token> negateToken, VisitorContextPtr expressionCtx, Parsing::Parser::ExprContextPtr expression);
+	virtual void OnBeginVisitNumberOperand(VisitorContextPtr operandCtx, std::optional<Parsing::Token> negateToken);
+	virtual void OnVisitNumber(VisitorContextPtr numberCtx, Parsing::Token numberToken);
+
+private:
+	class WritingContext : public ExpressionVisitorBase::VisitorContext
+	{
+	public:
+		wostringstream Stream;
+	};
+
+	void WriteOperation(WritingContext& ctx, Parsing::Operation operation) const;
 };
 
-CALCULATOR_API std::wstring ExpressionWriter::Write(Parsing::Parser::ExprContextPtr expression) const
+CALCULATOR_API ExpressionWriter::ExpressionWriter() : _visitor(new ExpressionWriterVisitor)
 {
-	WritingContext ctx;
-	WriteExpr(ctx, expression);
+}
+
+CALCULATOR_API ExpressionWriter::~ExpressionWriter()
+{
+}
+
+CALCULATOR_API std::wstring ExpressionWriter::Write(Parsing::Parser::ExprContextPtr expression)
+{
+	return _visitor->Visit(expression);
+}
+
+ExpressionVisitorBase::VisitorContextPtr ExpressionWriter::ExpressionWriterVisitor::CreateContext(VisitorContextPtr parent)
+{
+	return parent ? parent : make_shared<WritingContext>();
+}
+
+std::wstring ExpressionWriter::ExpressionWriterVisitor::OnSuccessfulVisit(VisitorContextPtr expressionCtx)
+{
+	WritingContext& ctx = dynamic_cast<WritingContext&>(*expressionCtx);
 	return ctx.Stream.str();
 }
 
-void ExpressionWriter::WriteExpr(WritingContext& ctx, Parsing::Parser::ExprContextPtr expression) const
+void ExpressionWriter::ExpressionWriterVisitor::OnBeginVisitExpressionSubsequentOperand(VisitorContextPtr expressionCtx, Parsing::Operation operation)
 {
-	bool first = true;
-	for (auto& operand : expression->getOperands())
-	{
-		auto& multExpression = get<1>(operand);
-		if (first)
-		{
-			WriteMultExpr(ctx, multExpression);
-			first = false;
-			continue;
-		}
+	WritingContext& ctx = dynamic_cast<WritingContext&>(*expressionCtx);
+	ctx.Stream << L' ';
+	WriteOperation(ctx, operation);
+	ctx.Stream << L' ';
+}
 
-		auto& operation = get<0>(operand);
-		ctx.Stream << L' ';
-		WriteOperation(ctx, operation);
-		ctx.Stream << L' ';
-		WriteMultExpr(ctx, multExpression);
+void ExpressionWriter::ExpressionWriterVisitor::OnBeginVisitExpressionOperand(VisitorContextPtr operandCtx, std::optional<Parsing::Token> negateToken, Parsing::Parser::ExprContextPtr expression)
+{
+	WritingContext& ctx = dynamic_cast<WritingContext&>(*operandCtx);
+	if (negateToken && negateToken->getFirstChar() == '-')
+		ctx.Stream << L'-';
+
+	if (expression->getOperands().size() > 1 && get<0>(expression->getOperands()[1]) != Operation::Multiply)
+		ctx.Stream << L'(';
+}
+
+void ExpressionWriter::ExpressionWriterVisitor::OnVisitExpressionOperand(VisitorContextPtr operandCtx, std::optional<Parsing::Token> negateToken, VisitorContextPtr expressionCtx, Parsing::Parser::ExprContextPtr expression)
+{
+	if (expression->getOperands().size() > 1 && get<0>(expression->getOperands()[1]) != Operation::Multiply)
+	{
+		WritingContext& ctx = dynamic_cast<WritingContext&>(*operandCtx);
+		ctx.Stream << L')';
 	}
 }
 
-void ExpressionWriter::WriteMultExpr(WritingContext& ctx, Parsing::Parser::MultExprContextPtr expression) const
+void ExpressionWriter::ExpressionWriterVisitor::OnBeginVisitNumberOperand(VisitorContextPtr operandCtx, std::optional<Parsing::Token> negateToken)
 {
-	bool first = true;
-	for (auto& operand : expression->getOperands())
-	{
-		auto& operandValue = get<1>(operand);
-		if (first)
-		{
-			WriteOperand(ctx, operandValue);
-			first = false;
-			continue;
-		}
-
-		auto& operation = get<0>(operand);
-		ctx.Stream << L' ';
-		WriteOperation(ctx, operation);
-		ctx.Stream << L' ';
-		WriteOperand(ctx, operandValue);
-	}
+	WritingContext& ctx = dynamic_cast<WritingContext&>(*operandCtx);
+	if (negateToken && negateToken->getFirstChar() == '-')
+		ctx.Stream << L'-';
 }
 
-void ExpressionWriter::WriteOperation(WritingContext& ctx, Parsing::Operation operation) const
+void ExpressionWriter::ExpressionWriterVisitor::OnVisitNumber(VisitorContextPtr numberCtx, Parsing::Token numberToken)
+{
+	WritingContext& ctx = dynamic_cast<WritingContext&>(*numberCtx);
+	ctx.Stream << numberToken.getText();
+}
+
+void ExpressionWriter::ExpressionWriterVisitor::WriteOperation(WritingContext& ctx, Parsing::Operation operation) const
 {
 	switch (operation)
 	{
@@ -79,30 +110,4 @@ void ExpressionWriter::WriteOperation(WritingContext& ctx, Parsing::Operation op
 	default:
 		ThrowError(L"Unhandled operation: " << (int) operation);
 	}
-}
-
-void ExpressionWriter::WriteOperand(WritingContext& ctx, Parsing::Parser::OperandContextPtr operand) const
-{
-	auto& negateToken = operand->getNegateToken();
-	if (negateToken && negateToken->getFirstChar() == '-')
-		ctx.Stream << L"-";
-
-	switch (operand->getType())
-	{
-	case Parser::OperandContext::OperandType::Number:
-		WriteNumber(ctx, operand->getNumber());
-		break;
-	case Parser::OperandContext::OperandType::Expression:
-		ctx.Stream << L'(';
-		WriteExpr(ctx, operand->getExpression());
-		ctx.Stream << L')';
-		break;
-	default:
-		ThrowError(L"Unhandled operand type:" << (int)operand->getType());
-	}
-}
-
-void ExpressionWriter::WriteNumber(WritingContext& ctx, Parsing::Token numberToken) const
-{
-	ctx.Stream << numberToken.getText();
 }

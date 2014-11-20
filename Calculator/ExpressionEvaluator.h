@@ -1,16 +1,16 @@
 #pragma once
 #include "Parser.h"
+#include "ExpressionVisitor.h"
+#include <memory>
 
 class ExpressionEvaluator
 {
 public:
-	CALCULATOR_API int Evaluate(Parsing::Parser::ExprContextPtr expression) const;
+	CALCULATOR_API ExpressionEvaluator();
+	CALCULATOR_API ~ExpressionEvaluator();
+	CALCULATOR_API int Evaluate(Parsing::Parser::ExprContextPtr expression);
 private:
-	int evaluateExpr(Parsing::Parser::ExprContextPtr expression) const;
-	int evaluateMultExpr(Parsing::Parser::MultExprContextPtr expression) const;
-	int evaluateOperand(Parsing::Parser::OperandContextPtr operand) const;
-	int evaluateNumber(Parsing::Token numberToken) const;
-
-	int processOperation(int a, int b, Parsing::Operation operation) const;
+	class ExpressionEvaluatorVisitor;
+	std::unique_ptr<ExpressionEvaluatorVisitor> _visitor;
 };
 

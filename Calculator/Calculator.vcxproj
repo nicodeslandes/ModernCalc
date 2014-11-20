@@ -190,6 +190,7 @@
     <ClInclude Include="Calculator.h" />
     <ClInclude Include="Error.h" />
     <ClInclude Include="ExpressionEvaluator.h" />
+    <ClInclude Include="ExpressionVisitor.h" />
     <ClInclude Include="ExpressionWriter.h" />
     <ClInclude Include="Parser.h" />
     <ClInclude Include="ParsingContext.h" />
@@ -203,6 +204,7 @@
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="Calculator.cpp" />
     <ClCompile Include="ExpressionEvaluator.cpp" />
+    <ClCompile Include="ExpressionVisitor.cpp" />
     <ClCompile Include="ExpressionWriter.cpp" />
     <ClCompile Include="Parser.cpp" />
     <ClCompile Include="ParsingContext.cpp" />
