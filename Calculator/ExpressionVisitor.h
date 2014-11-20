@@ -44,12 +44,12 @@ public:
 	T Visit(Parsing::Parser::ExprContextPtr expression);
 
 protected:
-	virtual T OnSuccessfulVisit(VisitorContextPtr ctx) = 0;
+	virtual T GetResult(VisitorContextPtr ctx) = 0;
 };
 
 template<class T>
 inline T ExpressionVisitor<T>::Visit(Parsing::Parser::ExprContextPtr expression)
 {
 	VisitorContextPtr ctx = VisitExpression(ctx, expression);
-	return OnSuccessfulVisit(ctx);
+	return GetResult(ctx);
 }

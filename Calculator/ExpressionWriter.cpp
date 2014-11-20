@@ -9,7 +9,7 @@ class ExpressionWriter::ExpressionWriterVisitor : public ExpressionVisitor<std::
 {
 public:
 	virtual VisitorContextPtr CreateContext(VisitorContextPtr parent = nullptr);
-	virtual std::wstring OnSuccessfulVisit(VisitorContextPtr ctx);
+	virtual std::wstring GetResult(VisitorContextPtr ctx);
 	virtual void OnBeginVisitExpressionSubsequentOperand(VisitorContextPtr expressionCtx, Parsing::Operation operation);
 
 	virtual void OnBeginVisitExpressionOperand(VisitorContextPtr operandCtx, std::optional<Parsing::Token> negateToken, Parsing::Parser::ExprContextPtr expression);
@@ -45,7 +45,7 @@ ExpressionVisitorBase::VisitorContextPtr ExpressionWriter::ExpressionWriterVisit
 	return parent ? parent : make_shared<WritingContext>();
 }
 
-std::wstring ExpressionWriter::ExpressionWriterVisitor::OnSuccessfulVisit(VisitorContextPtr expressionCtx)
+std::wstring ExpressionWriter::ExpressionWriterVisitor::GetResult(VisitorContextPtr expressionCtx)
 {
 	WritingContext& ctx = dynamic_cast<WritingContext&>(*expressionCtx);
 	return ctx.Stream.str();

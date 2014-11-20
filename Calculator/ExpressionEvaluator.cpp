@@ -9,7 +9,7 @@ class ExpressionEvaluator::ExpressionEvaluatorVisitor : public ExpressionVisitor
 {
 public:
 	virtual VisitorContextPtr CreateContext(VisitorContextPtr parent = nullptr);
-	virtual int OnSuccessfulVisit(VisitorContextPtr ctx);
+	virtual int GetResult(VisitorContextPtr ctx);
 
 	virtual void OnVisitExpressionFirstOperand(VisitorContextPtr expressionCtx, VisitorContextPtr operandCtx);
 	virtual void OnVisitExpressionSubsequentOperand(VisitorContextPtr expressionCtx, Parsing::Operation operation, VisitorContextPtr operandCtx);
@@ -48,7 +48,7 @@ ExpressionVisitorBase::VisitorContextPtr ExpressionEvaluator::ExpressionEvaluato
 	return make_shared<EvaluationContext>();
 }
 
-int ExpressionEvaluator::ExpressionEvaluatorVisitor::OnSuccessfulVisit(VisitorContextPtr expressionCtx)
+int ExpressionEvaluator::ExpressionEvaluatorVisitor::GetResult(VisitorContextPtr expressionCtx)
 {
 	EvaluationContext& ctx = dynamic_cast<EvaluationContext&>(*expressionCtx);
 	return ctx.value;
