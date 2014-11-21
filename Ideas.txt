@@ -1,0 +1,4 @@
+Change the Visitor functions to return values: TResult:
+	int ExpressionEvaluator::ExpressionEvaluatorVisitor::OnVisitIdentifier(VisitorContextPtr identifierCtx, const wstring& identifier)
+	int ExpressionEvaluator::ExpressionEvaluatorVisitor::OnVisitNumber(VisitorContextPtr numberCtx, const wstring& number)
+that would mean the ctx could be left to the list of variables, and be ignored by all visitor function apart from OnVisitIdentifier.
