@@ -45,15 +45,15 @@ template <class T>
 class ExpressionVisitor : public ExpressionVisitorBase
 {
 public:
-	T Visit(Parsing::Parser::ExprContextPtr expression);
+	T Visit(Parsing::Parser::ExprContextPtr expression, VisitorContextPtr ctx = nullptr);
 
 protected:
 	virtual T GetResult(VisitorContextPtr ctx) = 0;
 };
 
 template<class T>
-inline T ExpressionVisitor<T>::Visit(Parsing::Parser::ExprContextPtr expression)
+inline T ExpressionVisitor<T>::Visit(Parsing::Parser::ExprContextPtr expression, VisitorContextPtr ctx /*= nullptr*/)
 {
-	VisitorContextPtr ctx = VisitExpression(ctx, expression);
+	ctx = VisitExpression(ctx, expression);
 	return GetResult(ctx);
 }

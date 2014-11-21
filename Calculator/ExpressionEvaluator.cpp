@@ -19,13 +19,18 @@ public:
 
 	virtual void OnVisitNumber(VisitorContextPtr numberCtx, const wstring& number);
 	virtual void OnVisitIdentifier(VisitorContextPtr identifierCtx, const wstring& identifier);
-private:
+
 	class EvaluationContext : public ExpressionVisitorBase::VisitorContext
 	{
 	public:
-		EvaluationContext() : value{} {}
+		EvaluationContext(const vector<int>& variables) : value{}, variables{ variables } {}
+		EvaluationContext(const EvaluationContext& parent) : value{}, variables{ parent.variables } {}
+		EvaluationContext& operator=(const EvaluationContext&) = delete;
+		const vector<int>& variables;
 		int value;
 	};
+	typedef std::shared_ptr<EvaluationContext> EvaluationContextPtr;
+private:
 
 	int ProcessOperation(int a, int b, Operation operation) const;
 };
@@ -39,15 +44,16 @@ CALCULATOR_API ExpressionEvaluator::~ExpressionEvaluator()
 {
 }
 
-CALCULATOR_API int ExpressionEvaluator::Evaluate(Parser::ExprContextPtr expression)
+CALCULATOR_API int ExpressionEvaluator::Evaluate(Parser::ExprContextPtr expression, std::vector<int> variableValues /* = {}*/)
 {
-	return _visitor->Visit(expression);
+	auto ctx = make_shared<ExpressionEvaluatorVisitor::EvaluationContext>(variableValues);
+	return _visitor->Visit(expression, ctx);
 }
 
 
 ExpressionVisitorBase::VisitorContextPtr ExpressionEvaluator::ExpressionEvaluatorVisitor::CreateContext(VisitorContextPtr parent)
 {
-	return make_shared<EvaluationContext>();
+	return make_shared<EvaluationContext>(*dynamic_pointer_cast<EvaluationContext>(parent));
 }
 
 int ExpressionEvaluator::ExpressionEvaluatorVisitor::GetResult(VisitorContextPtr expressionCtx)
@@ -89,15 +95,24 @@ void ExpressionEvaluator::ExpressionEvaluatorVisitor::OnVisitNumberOperand(Visit
 void ExpressionEvaluator::ExpressionEvaluatorVisitor::OnVisitIdentifierOperand(VisitorContextPtr operandCtx, optional<Token> negateToken, VisitorContextPtr identifier)
 {
 	auto& operandEvalCtx = dynamic_cast<EvaluationContext&>(*operandCtx);
-	auto& numberEvalCtx = dynamic_cast<EvaluationContext&>(*identifier);
+	auto& identifierEvalCtx = dynamic_cast<EvaluationContext&>(*identifier);
 	auto negateFactor = (negateToken && negateToken->getFirstChar() == L'-') ? -1 : 1;
-	operandEvalCtx.value = negateFactor * numberEvalCtx.value;
+	operandEvalCtx.value = negateFactor * identifierEvalCtx.value;
 }
 
-void ExpressionEvaluator::ExpressionEvaluatorVisitor::OnVisitIdentifier(VisitorContextPtr identifierCtx, const wstring& /*identifier*/)
+void ExpressionEvaluator::ExpressionEvaluatorVisitor::OnVisitIdentifier(VisitorContextPtr identifierCtx, const wstring& identifier)
 {
 	auto& identifierEvalCtx = dynamic_cast<EvaluationContext&>(*identifierCtx);
-	identifierEvalCtx.value = 1;
+	if (identifierEvalCtx.variables.size() == 0)
+		ThrowError(L"Invalid variable reference: '" << identifier << L"'; no variable is currently available");
+
+	if (identifier.size() != 1)
+		ThrowError(L"Wrong variable name: '" << identifier << L"'; variable should be a letter from A to Z");
+	int variableIndex = identifier[0] - L'A';
+	if (variableIndex < 0 || variableIndex >= (int)identifierEvalCtx.variables.size())
+		ThrowError(L"Invalid variable: '" << identifier << L"'; please use variables between A and " << L'A' + identifierEvalCtx.variables.size() - 1);
+
+	identifierEvalCtx.value = identifierEvalCtx.variables[variableIndex];
 }
 
 void ExpressionEvaluator::ExpressionEvaluatorVisitor::OnVisitNumber(VisitorContextPtr numberCtx, const wstring& number)
