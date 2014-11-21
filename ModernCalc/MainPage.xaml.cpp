@@ -22,6 +22,7 @@ using namespace Windows::UI::Xaml::Data;
 using namespace Windows::UI::Xaml::Input;
 using namespace Windows::UI::Xaml::Media;
 using namespace Windows::UI::Xaml::Navigation;
+using namespace std;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
 
@@ -41,7 +42,10 @@ void ModernCalc::MainPage::EvaluateFormula()
 
 		auto expression = parser.parse_formula(formula);
 		formulaTextBox->Text = ref new String(writer.Write(expression).c_str());
-		int res = evaluator.Evaluate(expression);
+		vector<TextBox^> textBoxes{TextBox_A, TextBox_B, TextBox_C};
+		vector<int> values;
+		transform(begin(textBoxes), end(textBoxes), back_inserter(values), [](TextBox^ tb) { return _wtoi(tb->Text->Data()); });
+		int res = evaluator.Evaluate(expression, values);
 		resultTextBox->Text = res.ToString();
 	}
 	catch (const ParsingException& ex)
@@ -62,4 +66,10 @@ void ModernCalc::MainPage::formulaTextBox_KeyDown(Platform::Object^ sender, Wind
 	{
 		EvaluateFormula();
 	}
+}
+
+
+void ModernCalc::MainPage::Page_Loaded(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
+{
+	formulaTextBox->Focus(Windows::UI::Xaml::FocusState::Programmatic);
 }

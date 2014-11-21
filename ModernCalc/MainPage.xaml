@@ -5,7 +5,7 @@
     xmlns:local="using:ModernCalc"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d" FontSize="26.667">
+    mc:Ignorable="d" FontSize="26.667" Loaded="Page_Loaded">
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <Grid.ColumnDefinitions>
@@ -16,13 +16,28 @@
             <RowDefinition Height="40" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition />
         </Grid.RowDefinitions>
-        <TextBlock Grid.Row="1" Grid.Column="0" Text="Formula:" VerticalAlignment="Center" Margin="20" HorizontalAlignment="Right"/>
-        <TextBox Grid.Row="1" Grid.Column="1" x:Name="formulaTextBox" VerticalAlignment="Center" Margin="10" KeyDown="formulaTextBox_KeyDown" />
-        <TextBlock Grid.Row="2" Grid.Column="0" Margin="20" Text="Result:" VerticalAlignment="Center" HorizontalAlignment="Right"/>
-        <TextBox Grid.Row="2" Grid.Column="1" x:Name="resultTextBox" VerticalAlignment="Center" Margin="10" IsReadOnly="True" FontFamily="Global User Interface" />
-        <Button Grid.Row="3" Grid.ColumnSpan="2" Content="Calculate!" HorizontalAlignment="Center" Padding="25,18" FontSize="48" Click="Button_Click" />
+        <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.ColumnSpan="2">
+            <StackPanel Margin="20">
+                <TextBlock Text="A" HorizontalAlignment="Center" />
+                <TextBox Name="TextBox_A" Margin="10" Text="1" TextAlignment="Center"/>
+            </StackPanel>
+            <StackPanel Margin="20">
+                <TextBlock Text="B" HorizontalAlignment="Center" />
+                <TextBox Name="TextBox_B" Margin="10" Text="2" TextAlignment="Center"/>
+            </StackPanel>
+            <StackPanel Margin="20">
+                <TextBlock Text="C" HorizontalAlignment="Center" />
+                <TextBox Name="TextBox_C" Margin="10" Text="3" TextAlignment="Center"/>
+            </StackPanel>
+        </StackPanel>
+        <TextBlock Grid.Row="2" Grid.Column="0" Text="Formula:" VerticalAlignment="Center" Margin="20" HorizontalAlignment="Right"/>
+        <TextBox Grid.Row="2" Grid.Column="1" x:Name="formulaTextBox" VerticalAlignment="Center" Margin="10" KeyDown="formulaTextBox_KeyDown" />
+        <TextBlock Grid.Row="3" Grid.Column="0" Margin="20" Text="Result:" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+        <TextBox Grid.Row="3" Grid.Column="1" x:Name="resultTextBox" VerticalAlignment="Center" Margin="10" IsReadOnly="True" FontFamily="Global User Interface" />
+        <Button Grid.Row="4" Grid.ColumnSpan="2" Content="Calculate!" HorizontalAlignment="Center" Padding="25,18" FontSize="48" Click="Button_Click" />
 
     </Grid>
 </Page>

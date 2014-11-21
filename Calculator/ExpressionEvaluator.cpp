@@ -110,7 +110,7 @@ void ExpressionEvaluator::ExpressionEvaluatorVisitor::OnVisitIdentifier(VisitorC
 		ThrowError(L"Wrong variable name: '" << identifier << L"'; variable should be a letter from A to Z");
 	int variableIndex = identifier[0] - L'A';
 	if (variableIndex < 0 || variableIndex >= (int)identifierEvalCtx.variables.size())
-		ThrowError(L"Invalid variable: '" << identifier << L"'; please use variables between A and " << L'A' + identifierEvalCtx.variables.size() - 1);
+		ThrowError(L"Invalid variable: '" << identifier << L"'; please use variables between A and " << (wchar_t)(L'A' + identifierEvalCtx.variables.size() - 1));
 
 	identifierEvalCtx.value = identifierEvalCtx.variables[variableIndex];
 }
