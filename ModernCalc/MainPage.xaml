@@ -22,15 +22,27 @@
         <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.ColumnSpan="2">
             <StackPanel Margin="20">
                 <TextBlock Text="A" HorizontalAlignment="Center" />
-                <TextBox Name="TextBox_A" Margin="10" Text="1" TextAlignment="Center"/>
+                <TextBox Name="TextBox_A" Margin="10" Text="1" TextAlignment="Center" KeyDown="formulaTextBox_KeyDown"/>
             </StackPanel>
             <StackPanel Margin="20">
                 <TextBlock Text="B" HorizontalAlignment="Center" />
-                <TextBox Name="TextBox_B" Margin="10" Text="2" TextAlignment="Center"/>
+                <TextBox Name="TextBox_B" Margin="10" Text="2" TextAlignment="Center" KeyDown="formulaTextBox_KeyDown"/>
             </StackPanel>
             <StackPanel Margin="20">
                 <TextBlock Text="C" HorizontalAlignment="Center" />
-                <TextBox Name="TextBox_C" Margin="10" Text="3" TextAlignment="Center"/>
+                <TextBox Name="TextBox_C" Margin="10" Text="3" TextAlignment="Center" KeyDown="formulaTextBox_KeyDown"/>
+            </StackPanel>
+            <StackPanel Margin="20">
+                <TextBlock Text="D" HorizontalAlignment="Center" />
+                <TextBox Name="TextBox_D" Margin="10" Text="4" TextAlignment="Center" KeyDown="formulaTextBox_KeyDown"/>
+            </StackPanel>
+            <StackPanel Margin="20">
+                <TextBlock Text="E" HorizontalAlignment="Center" />
+                <TextBox Name="TextBox_E" Margin="10" Text="5" TextAlignment="Center" KeyDown="formulaTextBox_KeyDown"/>
+            </StackPanel>
+            <StackPanel Margin="20">
+                <TextBlock Text="F" HorizontalAlignment="Center" />
+                <TextBox Name="TextBox_F" Margin="10" Text="6" TextAlignment="Center" KeyDown="formulaTextBox_KeyDown"/>
             </StackPanel>
         </StackPanel>
         <TextBlock Grid.Row="2" Grid.Column="0" Text="Formula:" VerticalAlignment="Center" Margin="20" HorizontalAlignment="Right"/>

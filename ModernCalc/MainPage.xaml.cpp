@@ -42,7 +42,7 @@ void ModernCalc::MainPage::EvaluateFormula()
 
 		auto expression = parser.parse_formula(formula);
 		formulaTextBox->Text = ref new String(writer.Write(expression).c_str());
-		vector<TextBox^> textBoxes{TextBox_A, TextBox_B, TextBox_C};
+		vector<TextBox^> textBoxes{TextBox_A, TextBox_B, TextBox_C , TextBox_D, TextBox_E , TextBox_F};
 		vector<int> values;
 		transform(begin(textBoxes), end(textBoxes), back_inserter(values), [](TextBox^ tb) { return _wtoi(tb->Text->Data()); });
 		int res = evaluator.Evaluate(expression, values);
