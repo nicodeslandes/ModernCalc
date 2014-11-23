@@ -5,7 +5,7 @@
 using namespace std;
 using namespace Parsing;
 
-ExpressionVisitorBase::VisitorContextPtr ExpressionVisitorBase::VisitExpression(VisitorContextPtr ctx, Parsing::Parser::ExprContextPtr expression)
+ExpressionVisitorBase::VisitorContextPtr ExpressionVisitorBase::VisitExpression(VisitorContextPtr ctx, Parsing::Parser::ExpressionPtr expression)
 {
 	bool first = true;
 
@@ -31,28 +31,28 @@ ExpressionVisitorBase::VisitorContextPtr ExpressionVisitorBase::VisitExpression(
 	return exprCtx;
 }
 
-ExpressionVisitorBase::VisitorContextPtr ExpressionVisitorBase::VisitOperand(VisitorContextPtr ctx, Parsing::Parser::OperandContextPtr operand)
+ExpressionVisitorBase::VisitorContextPtr ExpressionVisitorBase::VisitOperand(VisitorContextPtr ctx, Parsing::Parser::OperandPtr operand)
 {
 	auto operandCtx = CreateContext(ctx);
 	auto& negateToken = operand->getNegateToken();
 
 	switch (operand->getType())
 	{
-	case Parser::OperandContext::OperandType::Number:
+	case Parser::Operand::OperandType::Number:
 	{
 		OnBeginVisitNumberOperand(operandCtx, negateToken);
 		auto numberCtx = VisitNumber(operandCtx, operand->getNumber());
 		OnVisitNumberOperand(operandCtx, negateToken, numberCtx);
 		break;
 	}
-	case Parser::OperandContext::OperandType::Identifier:
+	case Parser::Operand::OperandType::Identifier:
 	{
 		OnBeginVisitIdentifierOperand(operandCtx, negateToken);
 		auto numberCtx = VisitIdentifier(operandCtx, operand->getIdentifier());
 		OnVisitNumberOperand(operandCtx, negateToken, numberCtx);
 		break;
 	}
-	case Parser::OperandContext::OperandType::Expression:
+	case Parser::Operand::OperandType::Expression:
 	{
 		OnBeginVisitExpressionOperand(operandCtx, negateToken, operand->getExpression());
 		auto exprCtx = VisitExpression(operandCtx, operand->getExpression());

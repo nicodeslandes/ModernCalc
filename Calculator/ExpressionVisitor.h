@@ -7,7 +7,7 @@
 class ExpressionVisitorBase
 {
 public:
-	void Visit(Parsing::Parser::ExprContextPtr expression);
+	void Visit(Parsing::Parser::ExpressionPtr expression);
 protected:
 	class VisitorContext
 	{
@@ -18,8 +18,8 @@ protected:
 
 	virtual VisitorContextPtr CreateContext(VisitorContextPtr parent = nullptr) = 0;
 
-	VisitorContextPtr VisitExpression(VisitorContextPtr ctx, Parsing::Parser::ExprContextPtr expression);
-	VisitorContextPtr VisitOperand(VisitorContextPtr ctx, Parsing::Parser::OperandContextPtr operand);
+	VisitorContextPtr VisitExpression(VisitorContextPtr ctx, Parsing::Parser::ExpressionPtr expression);
+	VisitorContextPtr VisitOperand(VisitorContextPtr ctx, Parsing::Parser::OperandPtr operand);
 	VisitorContextPtr VisitNumber(VisitorContextPtr ctx, const std::wstring& number);
 	VisitorContextPtr VisitIdentifier(VisitorContextPtr ctx, const std::wstring& identifier);
 
@@ -29,8 +29,8 @@ protected:
 	virtual void OnBeginVisitExpressionSubsequentOperand(VisitorContextPtr expressionCtx, Parsing::Operation operation) {}
 	virtual void OnVisitExpressionSubsequentOperand(VisitorContextPtr expressionCtx, Parsing::Operation operation, VisitorContextPtr operandCtx) {}
 
-	virtual void OnBeginVisitExpressionOperand(VisitorContextPtr operandCtx, std::optional<Parsing::Token> negateToken, Parsing::Parser::ExprContextPtr expression) {}
-	virtual void OnVisitExpressionOperand(VisitorContextPtr operandCtx, std::optional<Parsing::Token> negateToken, VisitorContextPtr expressionCtx, Parsing::Parser::ExprContextPtr expression) {}
+	virtual void OnBeginVisitExpressionOperand(VisitorContextPtr operandCtx, std::optional<Parsing::Token> negateToken, Parsing::Parser::ExpressionPtr expression) {}
+	virtual void OnVisitExpressionOperand(VisitorContextPtr operandCtx, std::optional<Parsing::Token> negateToken, VisitorContextPtr expressionCtx, Parsing::Parser::ExpressionPtr expression) {}
 	virtual void OnBeginVisitNumberOperand(VisitorContextPtr operandCtx, std::optional<Parsing::Token> negateToken) {}
 	virtual void OnBeginVisitIdentifierOperand(VisitorContextPtr operandCtx, std::optional<Parsing::Token> negateToken) {}
 	virtual void OnVisitNumberOperand(VisitorContextPtr operandCtx, std::optional<Parsing::Token> negateToken, VisitorContextPtr number) {}
@@ -45,14 +45,14 @@ template <class T>
 class ExpressionVisitor : public ExpressionVisitorBase
 {
 public:
-	T Visit(Parsing::Parser::ExprContextPtr expression, VisitorContextPtr ctx = nullptr);
+	T Visit(Parsing::Parser::ExpressionPtr expression, VisitorContextPtr ctx = nullptr);
 
 protected:
 	virtual T GetResult(VisitorContextPtr ctx) = 0;
 };
 
 template<class T>
-inline T ExpressionVisitor<T>::Visit(Parsing::Parser::ExprContextPtr expression, VisitorContextPtr ctx /*= nullptr*/)
+inline T ExpressionVisitor<T>::Visit(Parsing::Parser::ExpressionPtr expression, VisitorContextPtr ctx /*= nullptr*/)
 {
 	ctx = VisitExpression(ctx, expression);
 	return GetResult(ctx);

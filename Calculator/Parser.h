@@ -14,19 +14,17 @@ namespace Parsing
 	class Parser
 	{
 	public:
-		class ExprContext;
-		typedef std::shared_ptr<ExprContext> ExprContextPtr;
+		class Expression;
+		typedef std::shared_ptr<Expression> ExpressionPtr;
 
-		CALCULATOR_API ExprContextPtr parse_formula(const std::wstring& str);
+		CALCULATOR_API ExpressionPtr parse_formula(const std::wstring& str);
 
-		class MultExprContext;
-		class OperandContext;
-		typedef std::shared_ptr<MultExprContext> MultExprContextPtr;
-		typedef std::shared_ptr<OperandContext> OperandContextPtr;
+		class Operand;
+		typedef std::shared_ptr<Operand> OperandPtr;
 	private:
-		ExprContextPtr parse_expr(ParsingContext& ctx);
-		OperandContextPtr parse_operand(ParsingContext & ctx);
-		ExprContextPtr parse_multexpr(ParsingContext& ctx);
+		ExpressionPtr parse_expr(ParsingContext& ctx);
+		OperandPtr parse_operand(ParsingContext & ctx);
+		ExpressionPtr parse_multexpr(ParsingContext& ctx);
 		wchar_t parse_operator(ParsingContext& ctx);
 
 		Tokenizer _tokenizer;
@@ -40,20 +38,20 @@ namespace Parsing
 		Divide
 	};
 
-	class Parser::ExprContext
+	class Parser::Expression
 	{
 	public:
-		const std::vector<std::tuple<Operation, OperandContextPtr>>& getOperands() const { return _operands; }
+		const std::vector<std::tuple<Operation, OperandPtr>>& getOperands() const { return _operands; }
 
 	private:
-		void addOperand(Token operationToken, OperandContextPtr operand);
+		void addOperand(Token operationToken, OperandPtr operand);
 		Operation getOperation(Token operationToken);
-		std::vector<std::tuple<Operation, OperandContextPtr>> _operands;
+		std::vector<std::tuple<Operation, OperandPtr>> _operands;
 
 		friend class Parser;
 	};
 
-	class Parser::OperandContext
+	class Parser::Operand
 	{
 	public:
 		const std::optional<Token>& getNegateToken() const { return _negateToken; }
@@ -68,7 +66,7 @@ namespace Parsing
 		OperandType getType() const { return _type; }
 		const std::wstring& getNumber() const { return _number.get(); }
 		const std::wstring& getIdentifier() const { return _identifier.get(); }
-		std::shared_ptr<ExprContext> getExpression() const { return _expression; }
+		std::shared_ptr<Expression> getExpression() const { return _expression; }
 
 	private:
 		friend class Parser;
@@ -76,6 +74,6 @@ namespace Parsing
 		std::optional<Token> _negateToken;
 		std::optional<std::wstring> _number;
 		std::optional<std::wstring> _identifier;
-		std::shared_ptr<ExprContext> _expression;
+		std::shared_ptr<Expression> _expression;
 	};
 }

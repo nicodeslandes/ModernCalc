@@ -13,7 +13,7 @@ public:
 
 	virtual void OnVisitExpressionFirstOperand(VisitorContextPtr expressionCtx, VisitorContextPtr operandCtx);
 	virtual void OnVisitExpressionSubsequentOperand(VisitorContextPtr expressionCtx, Operation operation, VisitorContextPtr operandCtx);
-	virtual void OnVisitExpressionOperand(VisitorContextPtr operandCtx, optional<Token> negateToken, VisitorContextPtr expressionCtx, Parser::ExprContextPtr expression);
+	virtual void OnVisitExpressionOperand(VisitorContextPtr operandCtx, optional<Token> negateToken, VisitorContextPtr expressionCtx, Parser::ExpressionPtr expression);
 	virtual void OnVisitNumberOperand(VisitorContextPtr operandCtx, optional<Token> negateToken, VisitorContextPtr number);
 	virtual void OnVisitIdentifierOperand(VisitorContextPtr operandCtx, optional<Token> negateToken, VisitorContextPtr identifier);
 
@@ -44,7 +44,7 @@ CALCULATOR_API ExpressionEvaluator::~ExpressionEvaluator()
 {
 }
 
-CALCULATOR_API int ExpressionEvaluator::Evaluate(Parser::ExprContextPtr expression, std::vector<int> variableValues /* = {}*/)
+CALCULATOR_API int ExpressionEvaluator::Evaluate(Parser::ExpressionPtr expression, std::vector<int> variableValues /* = {}*/)
 {
 	auto ctx = make_shared<ExpressionEvaluatorVisitor::EvaluationContext>(variableValues);
 	return _visitor->Visit(expression, ctx);
@@ -76,7 +76,7 @@ void ExpressionEvaluator::ExpressionEvaluatorVisitor::OnVisitExpressionSubsequen
 	expressionEvalCtx.value = ProcessOperation(expressionEvalCtx.value, operandEvalCtx.value, operation);
 }
 
-void ExpressionEvaluator::ExpressionEvaluatorVisitor::OnVisitExpressionOperand(VisitorContextPtr operandCtx, optional<Token> negateToken, VisitorContextPtr expressionCtx, Parser::ExprContextPtr expression)
+void ExpressionEvaluator::ExpressionEvaluatorVisitor::OnVisitExpressionOperand(VisitorContextPtr operandCtx, optional<Token> negateToken, VisitorContextPtr expressionCtx, Parser::ExpressionPtr expression)
 {
 	auto& operandEvalCtx = dynamic_cast<EvaluationContext&>(*operandCtx);
 	auto& expressionEvalCtx = dynamic_cast<EvaluationContext&>(*expressionCtx);

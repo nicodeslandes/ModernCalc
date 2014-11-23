@@ -16,7 +16,7 @@ using namespace Parsing;
 // Number : [0-9]+
 // Identifier: [a-zA-Z]+
 
-CALCULATOR_API Parser::ExprContextPtr Parser::parse_formula(const wstring& str)
+CALCULATOR_API Parser::ExpressionPtr Parser::parse_formula(const wstring& str)
 {
 	ParsingContext ctx(str);
 	auto result = parse_expr(ctx);
@@ -27,9 +27,9 @@ CALCULATOR_API Parser::ExprContextPtr Parser::parse_formula(const wstring& str)
 	return result;
 }
 
-Parser::ExprContextPtr Parser::parse_expr(ParsingContext& ctx)
+Parser::ExpressionPtr Parser::parse_expr(ParsingContext& ctx)
 {
-	auto expression = make_shared<ExprContext>();
+	auto expression = make_shared<Expression>();
 
 	// Initialize the operation token to a dummy token
 	Token operationToken = Token::None;
@@ -43,8 +43,8 @@ Parser::ExprContextPtr Parser::parse_expr(ParsingContext& ctx)
 		}
 
 		auto operandExpression = parse_multexpr(ctx);
-		auto operand = make_shared<OperandContext>();
-		operand->_type = OperandContext::OperandType::Expression;
+		auto operand = make_shared<Operand>();
+		operand->_type = Operand::OperandType::Expression;
 		operand->_expression = operandExpression;
 		expression->addOperand(operationToken, operand);
 
@@ -55,9 +55,9 @@ Parser::ExprContextPtr Parser::parse_expr(ParsingContext& ctx)
 	return expression;
 }
 
-Parser::ExprContextPtr Parser::parse_multexpr(ParsingContext& ctx)
+Parser::ExpressionPtr Parser::parse_multexpr(ParsingContext& ctx)
 {
-	auto multExpression = make_shared<ExprContext>();
+	auto multExpression = make_shared<Expression>();
 
 	// Initialize the operation token to a dummy token
 	Token operationToken = Token::None;
@@ -79,9 +79,9 @@ Parser::ExprContextPtr Parser::parse_multexpr(ParsingContext& ctx)
 	return multExpression;
 }
 
-Parser::OperandContextPtr Parser::parse_operand(ParsingContext& ctx)
+Parser::OperandPtr Parser::parse_operand(ParsingContext& ctx)
 {
-	auto operandContext = make_shared<OperandContext>();
+	auto operandContext = make_shared<Operand>();
 
 	auto token = _tokenizer.getNextToken(ctx);
 	if (token.getType() == TokenType::ADD_OPERATOR)
@@ -92,14 +92,14 @@ Parser::OperandContextPtr Parser::parse_operand(ParsingContext& ctx)
 
 	if (token.getType() == TokenType::NUMBER)
 	{
-		operandContext->_type = OperandContext::OperandType::Number;
+		operandContext->_type = Operand::OperandType::Number;
 		operandContext->_number = token.getText();
 		return operandContext;
 	}
 
 	if (token.getType() == TokenType::IDENTIFIER)
 	{
-		operandContext->_type = OperandContext::OperandType::Identifier;
+		operandContext->_type = Operand::OperandType::Identifier;
 		auto& tokenText = token.getText();
 		wstring identifier;
 		std::transform(begin(tokenText), end(tokenText), std::back_inserter(identifier), towupper);
@@ -113,7 +113,7 @@ Parser::OperandContextPtr Parser::parse_operand(ParsingContext& ctx)
 		token = _tokenizer.getNextToken(ctx);
 		if (token.getType() == TokenType::CLOSE_PARENT)
 		{
-			operandContext->_type = OperandContext::OperandType::Expression;
+			operandContext->_type = Operand::OperandType::Expression;
 			operandContext->_expression = expression;
 			return operandContext;
 		}
@@ -140,7 +140,7 @@ wchar_t Parser::parse_operator(ParsingContext& ctx)
 }
 
 
-Operation Parser::ExprContext::getOperation(Token operationToken)
+Operation Parser::Expression::getOperation(Token operationToken)
 {
 	if (operationToken.getType() == TokenType::END)
 		return Operation::Add;
@@ -155,7 +155,7 @@ Operation Parser::ExprContext::getOperation(Token operationToken)
 	}
 }
 
-void Parsing::Parser::ExprContext::addOperand(Token operationToken, OperandContextPtr operand)
+void Parsing::Parser::Expression::addOperand(Token operationToken, OperandPtr operand)
 {
 	auto operation = getOperation(operationToken);
 	_operands.push_back(make_tuple(operation, operand));

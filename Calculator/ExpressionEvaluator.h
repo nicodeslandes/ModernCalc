@@ -9,7 +9,7 @@ class ExpressionEvaluator
 public:
 	CALCULATOR_API ExpressionEvaluator();
 	CALCULATOR_API ~ExpressionEvaluator();
-	CALCULATOR_API int Evaluate(Parsing::Parser::ExprContextPtr expression, std::vector<int> variableValues = {});
+	CALCULATOR_API int Evaluate(Parsing::Parser::ExpressionPtr expression, std::vector<int> variableValues = {});
 private:
 	class ExpressionEvaluatorVisitor;
 	std::unique_ptr<ExpressionEvaluatorVisitor> _visitor;

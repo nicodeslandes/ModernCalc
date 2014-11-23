@@ -12,8 +12,8 @@ public:
 	virtual std::wstring GetResult(VisitorContextPtr ctx);
 	virtual void OnBeginVisitExpressionSubsequentOperand(VisitorContextPtr expressionCtx, Operation operation);
 
-	virtual void OnBeginVisitExpressionOperand(VisitorContextPtr operandCtx, std::optional<Token> negateToken, Parser::ExprContextPtr expression);
-	virtual void OnVisitExpressionOperand(VisitorContextPtr operandCtx, std::optional<Token> negateToken, VisitorContextPtr expressionCtx, Parser::ExprContextPtr expression);
+	virtual void OnBeginVisitExpressionOperand(VisitorContextPtr operandCtx, std::optional<Token> negateToken, Parser::ExpressionPtr expression);
+	virtual void OnVisitExpressionOperand(VisitorContextPtr operandCtx, std::optional<Token> negateToken, VisitorContextPtr expressionCtx, Parser::ExpressionPtr expression);
 	virtual void OnBeginVisitNumberOperand(VisitorContextPtr operandCtx, std::optional<Token> negateToken);
 	virtual void OnVisitNumber(VisitorContextPtr numberCtx, const std::wstring& number);
 	virtual void OnBeginVisitIdentifierOperand(VisitorContextPtr operandCtx, std::optional<Token> negateToken);
@@ -38,7 +38,7 @@ CALCULATOR_API ExpressionWriter::~ExpressionWriter()
 {
 }
 
-CALCULATOR_API std::wstring ExpressionWriter::Write(Parser::ExprContextPtr expression)
+CALCULATOR_API std::wstring ExpressionWriter::Write(Parser::ExpressionPtr expression)
 {
 	return _visitor->Visit(expression);
 }
@@ -62,7 +62,7 @@ void ExpressionWriter::ExpressionWriterVisitor::OnBeginVisitExpressionSubsequent
 	ctx.Stream << L' ';
 }
 
-void ExpressionWriter::ExpressionWriterVisitor::OnBeginVisitExpressionOperand(VisitorContextPtr operandCtx, std::optional<Token> negateToken, Parser::ExprContextPtr expression)
+void ExpressionWriter::ExpressionWriterVisitor::OnBeginVisitExpressionOperand(VisitorContextPtr operandCtx, std::optional<Token> negateToken, Parser::ExpressionPtr expression)
 {
 	WritingContext& ctx = dynamic_cast<WritingContext&>(*operandCtx);
 	if (negateToken && negateToken->getFirstChar() == '-')
@@ -72,7 +72,7 @@ void ExpressionWriter::ExpressionWriterVisitor::OnBeginVisitExpressionOperand(Vi
 		ctx.Stream << L'(';
 }
 
-void ExpressionWriter::ExpressionWriterVisitor::OnVisitExpressionOperand(VisitorContextPtr operandCtx, std::optional<Token> negateToken, VisitorContextPtr expressionCtx, Parser::ExprContextPtr expression)
+void ExpressionWriter::ExpressionWriterVisitor::OnVisitExpressionOperand(VisitorContextPtr operandCtx, std::optional<Token> negateToken, VisitorContextPtr expressionCtx, Parser::ExpressionPtr expression)
 {
 	if (expression->getOperands().size() > 1 && !IsMultiplicationOperation(get<0>(expression->getOperands()[1])))
 	{
