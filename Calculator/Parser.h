@@ -25,7 +25,6 @@ namespace Parsing
 		ExpressionPtr parse_expr(ParsingContext& ctx);
 		OperandPtr parse_operand(ParsingContext & ctx);
 		ExpressionPtr parse_multexpr(ParsingContext& ctx);
-		wchar_t parse_operator(ParsingContext& ctx);
 
 		Tokenizer _tokenizer;
 	};

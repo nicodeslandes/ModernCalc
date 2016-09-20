@@ -189,3 +189,5 @@ GeneratedArtifacts/
 _Pvt_Extensions/
 ModelManifest.xml
 /ModernCalc/Generated Files
+*.VC.db
+*.VC.opendb

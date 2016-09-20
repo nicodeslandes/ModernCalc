@@ -11,7 +11,7 @@ using namespace Parsing;
 // Grammar:
 // formula:	: expr<END>
 // expr		: mult_expr ( ('+' | '-' ) mult_expr)*
-// mult_expr: operand ( ('*' | '/' ) operand )*
+// mult_expr: operand ( ('*' | '/' )? operand )*
 // operand	: ('-' | '+')? ( Number | '(' expr ')' | Identifier )
 // Number : [0-9]+
 // Identifier: [a-zA-Z]+
@@ -67,14 +67,24 @@ Parser::ExpressionPtr Parser::parse_multexpr(ParsingContext& ctx)
 		if (operationToken.getType() != TokenType::END)
 		{
 			// If we've just peeked a new operator, consume it now
-			_tokenizer.getNextToken(ctx);
+			if (operationToken.getType() != TokenType::MULT_OPERATOR)
+			{
+				// Default multiplication token is '*'
+				// This allows for 2B, 2(A+B) to be treated as 2*B, 2*(A+B)
+				operationToken = Token(&ctx, TokenType::MULT_OPERATOR, ctx.getPosition(), ctx.getPosition());
+			}
+			else
+			{
+				_tokenizer.getNextToken(ctx);
+			}
 		}
 
 		auto operand = parse_operand(ctx);
 		multExpression->addOperand(operationToken, operand);
 
 		operationToken = _tokenizer.peekNextToken(ctx);
-	} while (operationToken.getType() == TokenType::MULT_OPERATOR);
+	} while (operationToken.getType() == TokenType::MULT_OPERATOR || operationToken.getType() == TokenType::IDENTIFIER
+		|| operationToken.getType() == TokenType::NUMBER || operationToken.getType() == TokenType::OPEN_PARENT);
 
 	return multExpression;
 }
@@ -96,7 +106,7 @@ Parser::OperandPtr Parser::parse_operand(ParsingContext& ctx)
 		operandContext->_number = token.getText();
 		return operandContext;
 	}
-
+	
 	if (token.getType() == TokenType::IDENTIFIER)
 	{
 		operandContext->_type = Operand::OperandType::Identifier;
@@ -125,25 +135,13 @@ Parser::OperandPtr Parser::parse_operand(ParsingContext& ctx)
 	ThrowError(L"Unexpected token at position " << token.getPosition() << ": '" << token.getText() << "'; number expected");
 }
 
-wchar_t Parser::parse_operator(ParsingContext& ctx)
-{
-	auto operatorToken = _tokenizer.getNextToken(ctx);
-	if (operatorToken.getType() != TokenType::ADD_OPERATOR && operatorToken.getType() != TokenType::MULT_OPERATOR)
-	{
-		if (operatorToken.getType() == TokenType::END)
-			return '\0';
-
-		ThrowError(L"Unexpected token at position " << operatorToken.getPosition() << ": '" << operatorToken.getText() << "'; number expected");
-	}
-
-	return operatorToken.getFirstChar();
-}
-
-
 Operation Parser::Expression::getOperation(Token operationToken)
 {
 	if (operationToken.getType() == TokenType::END)
 		return Operation::Add;
+
+	if (operationToken.getType() == TokenType::MULT_OPERATOR && operationToken.isEmpty())
+		return Operation::Multiply;
 
 	switch (operationToken.getFirstChar())
 	{

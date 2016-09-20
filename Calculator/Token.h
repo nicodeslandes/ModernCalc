@@ -26,6 +26,7 @@ namespace Parsing
 
 		TokenType getType() const { return _type; }
 		int getPosition() const { return _start; }
+		bool isEmpty() const { return _text.empty(); }
 		const std::wstring& getText() const { return _text; }
 		wchar_t getFirstChar() const;
 
